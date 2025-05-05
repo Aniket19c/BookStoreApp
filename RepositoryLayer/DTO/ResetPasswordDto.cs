@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RepositoryLayer.DTO
+﻿namespace BookStore.Models.DTO.User
 {
     public class ResetPasswordDto
     {
-        public string oldPassword { get; set; }
-        public string newPassword { get; set; }
+        public string NewPassword { get; set; }
+        public string ConfirmPassword { get; set; }
     }
 }

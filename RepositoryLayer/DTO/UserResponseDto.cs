@@ -1,10 +1,12 @@
-﻿namespace Repository.DTO
+﻿namespace BookStore.Models.DTO.User
 {
     public class UserResponseDto
     {
-        public string email { get; set; } = string.Empty;
-        public string firstName { get; set; } = string.Empty;
-        public string lastName { get; set; } = string.Empty;
-
+        public string Email { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Address { get; set; }
+        public string Role { get; set; }
     }
 }

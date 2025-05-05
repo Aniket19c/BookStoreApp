@@ -1,30 +1,50 @@
-﻿
+﻿using System;
+
 namespace Repository.Helper.CustomExceptions
 {
-    public class UserAlreadyExistsException : Exception
+    
+    public class CustomException : Exception
     {
-        public UserAlreadyExistsException(string message = "User already exists.") : base(message)
+        public int StatusCode { get; set; }
+        public string CustomMessage { get; set; }
+
+        public CustomException(string message, int statusCode) : base(message)
+        {
+            CustomMessage = message;
+            StatusCode = statusCode;
+        }
+    }
+
+  
+    public class UserAlreadyExistsException : CustomException
+    {
+        public UserAlreadyExistsException()
+            : base("User already exists with this email.", 409) 
         {
         }
     }
 
-    public class UserNotFoundException : Exception
+  
+    public class UserNotFoundException : CustomException
     {
-        public UserNotFoundException(string message = "User not found.") : base(message)
+        public UserNotFoundException()
+            : base("User not found.", 404) 
         {
         }
     }
 
-    public class DatabaseException : Exception
+    public class InvalidCredentialsException : CustomException
     {
-        public DatabaseException(string message = "A database error occurred.") : base(message)
+        public InvalidCredentialsException()
+            : base("Invalid email or password.", 401) 
         {
         }
     }
 
-    public class NotesNotFoundException : Exception
+    public class PasswordMismatchException : CustomException
     {
-        public NotesNotFoundException(string message = "Note not found.") : base(message)
+        public PasswordMismatchException()
+            : base("New password and confirm password do not match.", 400) 
         {
         }
     }

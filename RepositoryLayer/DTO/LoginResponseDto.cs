@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RepositoryLayer.DTO
+﻿namespace BookStore.Models.DTO.User
 {
     public class LoginResponseDto
     {
-        public string Email { get; set; }
         public string Token { get; set; }
+        public string Role { get; set; }
     }
 }

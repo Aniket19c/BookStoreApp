@@ -20,8 +20,6 @@ namespace BookStore.Models.DTO.User
 
         public string? PhoneNumber { get; set; }
 
-        public DateTime? DateOfBirth { get; set; }
-
         public string? Address { get; set; }
 
         public string? Role { get; set; }  
