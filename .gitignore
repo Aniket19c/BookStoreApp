@@ -18,6 +18,9 @@ BookStoreApp.http
 appsettings.json
 appsettings.Development.json
 
+Log.txt
+nlog.config
+
 
 # Mono auto generated files
 mono_crash.*
