@@ -15,11 +15,5 @@ namespace BookStore.Models.Entities.Book
         public string AuthorName { get; set; }  
         public int Quantity { get; set; }  
         public decimal Price { get; set; }  
-
-        [Required]
-        [ForeignKey("Category")]
-        public int CategoryId { get; set; }
-        public CategoryEntity Category { get; set; }
-        public ICollection<ReviewEntity>? Reviews { get; set; }
     }
 }

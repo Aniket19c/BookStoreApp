@@ -13,10 +13,7 @@ namespace BookStore.Models.Entities.Cart
         [Required]
         [ForeignKey("User")]
         public int UserId { get; set; }
-
-        
         public UserEntity User { get; set; }
-
         public ICollection<CartItemEntity>? CartItems { get; set; }
     }
 }

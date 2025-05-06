@@ -1,5 +1,6 @@
 ﻿using BookStore.Models.DTO.User;
 using BookStore.Models.Entities.User;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -245,18 +247,23 @@ namespace RepositoryLayer.Services
                     throw new UserNotFoundException();
                 }
 
+                if (!PasswordHelper.VerifyPassword(dto.OldPassword, user.PasswordHash))
+                {
+                    _logger.Warn("Incorrect current password");
+                    throw new IncorrectPasswordException();
+                }
+
+
                 if (dto.NewPassword != dto.ConfirmPassword)
                 {
                     _logger.Warn("Password mismatch during reset");
                     throw new PasswordMismatchException();
                 }
 
+
                 user.PasswordHash = PasswordHelper.HashPassword(dto.NewPassword);
                 _context.Users.Update(user);
                 await _context.SaveChangesAsync();
-
-                await _cache.RemoveAsync($"ResetToken_{email}");
-                await _cache.RemoveAsync($"UserByEmail_{email}");
 
                 _logger.Info("Password reset successful");
 
@@ -268,5 +275,8 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+
+
+
     }
 }

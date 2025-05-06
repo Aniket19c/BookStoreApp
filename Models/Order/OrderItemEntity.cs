@@ -24,7 +24,6 @@ namespace BookStore.Models.Entities.Order
         [Column(TypeName = "decimal(10,2)")]
         public decimal UnitPrice { get; set; }
 
-        // Navigation Properties
         public OrderEntity Order { get; set; }
 
         public BookEntity Book { get; set; }

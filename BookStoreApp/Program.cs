@@ -10,6 +10,8 @@ using Repository_Layer.Helper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using BusinessLayer.Interfaces;
+using BusinessLayer.Services;
 
 namespace BookStoreApp
 {
@@ -41,6 +43,8 @@ namespace BookStoreApp
               
                 builder.Services.AddScoped<IUserRL, UserRLImpl>();
                 builder.Services.AddScoped<IUserBL, UserBLImpl>();
+                builder.Services.AddScoped<IBookRL,BookRLImpl>();
+                builder.Services.AddScoped<IBookBL, BookBLImpl>();
                 builder.Services.AddSingleton<JwtTokenHelper>();
 
                 
@@ -69,7 +73,40 @@ namespace BookStoreApp
                
                 builder.Services.AddControllers();
                 builder.Services.AddEndpointsApiExplorer();
-                builder.Services.AddSwaggerGen();
+                builder.Services.AddSwaggerGen(options =>
+                {
+                    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                    {
+                        Title = "BookStore API",
+                        Version = "v1"
+                    });
+
+                    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer",
+                        BearerFormat = "JWT",
+                        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                        Description = "Enter 'Bearer' followed by space and your JWT token.\n\nExample: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    });
+
+                    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+                });
+
 
                 var app = builder.Build();
 

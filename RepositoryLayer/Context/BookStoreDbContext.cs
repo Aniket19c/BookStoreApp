@@ -11,8 +11,6 @@ public class BookStoreDbContext : DbContext
 
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<BookEntity> Books { get; set; }
-    public DbSet<CategoryEntity> Categories { get; set; }
-    public DbSet<ReviewEntity> Reviews { get; set; }
     public DbSet<OrderEntity> Orders { get; set; }
     public DbSet<OrderItemEntity> OrderItems { get; set; }
     public DbSet<CartEntity> Carts { get; set; }

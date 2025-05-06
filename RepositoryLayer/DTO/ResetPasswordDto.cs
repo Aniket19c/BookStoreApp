@@ -1,8 +1,14 @@
-﻿namespace BookStore.Models.DTO.User
+﻿using System.ComponentModel.DataAnnotations;
+
+public class ResetPasswordDto
 {
-    public class ResetPasswordDto
-    {
-        public string NewPassword { get; set; }
-        public string ConfirmPassword { get; set; }
-    }
+    [Required]
+    public string OldPassword { get; set; }
+
+    [Required]
+    public string NewPassword { get; set; }
+
+    [Required]
+    [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
+    public string ConfirmPassword { get; set; }
 }

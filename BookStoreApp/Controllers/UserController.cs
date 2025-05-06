@@ -6,6 +6,7 @@ using Repository.Helper.CustomExceptions;
 using RepositoryLayer.DTO;
 using NLog;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BookStore.Controllers
 {
@@ -90,6 +91,10 @@ namespace BookStore.Controllers
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine("Inner Exception: " + ex.InnerException.Message);
+                }
                 logger.Error(ex, "Unexpected error during login");
                 return StatusCode(500, new ResponseDto<string> { success = false, message = "An error occurred during login" });
             }
@@ -114,20 +119,29 @@ namespace BookStore.Controllers
 
         [HttpPost("reset-password")]
         [Authorize]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto, [FromQuery] string email)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
             try
             {
-                var response = await _userBL.ResetPasswordAsync(dto, email);
-                if (response.success)
-                    return Ok(response);
-                return BadRequest(response);
+                var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (string.IsNullOrEmpty(email))
+                    return Unauthorized(new ResponseDto<string> { success = false, message = "Invalid token or email not found in token." });
+
+                var result = await _userBL.ResetPasswordAsync(dto, email);
+                return Ok(result);
+            }
+            catch (PasswordMismatchException ex)
+            {
+                return BadRequest(new ResponseDto<string> { success = false, message = ex.Message });
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Error occurred while resetting password for email: {email}");
-                return StatusCode(500, new ResponseDto<string> { success = false, message = "Internal server error" });
+                logger.Error(ex, "Exception in ResetPassword controller");
+                return StatusCode(500, new ResponseDto<string> { success = false, message = "Internal Server Error" });
             }
         }
+
     }
 }
+

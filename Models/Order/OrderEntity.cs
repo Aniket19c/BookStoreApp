@@ -23,11 +23,10 @@ namespace BookStore.Models.Entities.Order
         public decimal TotalAmount { get; set; }
 
         [Required]
-        public string Status { get; set; } // e.g., "Pending", "Completed"
+        public string Status { get; set; } 
 
         public string? ShippingAddress { get; set; }
 
-        // Navigation Properties
         public UserEntity User { get; set; }
 
         public ICollection<OrderItemEntity>? OrderItems { get; set; }
