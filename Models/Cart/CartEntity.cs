@@ -5,15 +5,19 @@ using BookStore.Models.Entities.User;
 
 namespace BookStore.Models.Entities.Cart
 {
+    [Table("Cart")]
     public class CartEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CartId { get; set; }
 
         [Required]
-        [ForeignKey("User")]
         public int UserId { get; set; }
+
+        [ForeignKey("UserId")]
         public UserEntity User { get; set; }
-        public ICollection<CartItemEntity>? CartItems { get; set; }
+
+        public ICollection<CartItemEntity> CartItems { get; set; } = new List<CartItemEntity>();
     }
 }

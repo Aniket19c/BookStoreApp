@@ -17,7 +17,6 @@ namespace BookStore.Models.Entities.Wishlist
         [ForeignKey("Book")]
         public int BookId { get; set; }
 
-
         public WishlistEntity Wishlist { get; set; }
 
         public BookEntity Book { get; set; }

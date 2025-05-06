@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RepositoryLayer.Migrations
 {
     [DbContext(typeof(BookStoreDbContext))]
-    [Migration("20250506050945_removedcategory")]
-    partial class removedcategory
+    [Migration("20250506062701_UpdatedEntities")]
+    partial class UpdatedEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -68,14 +68,19 @@ namespace RepositoryLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartId"));
 
+                    b.Property<int?>("BookEntityBookId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("CartId");
 
+                    b.HasIndex("BookEntityBookId");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("Carts");
+                    b.ToTable("Cart");
                 });
 
             modelBuilder.Entity("BookStore.Models.Entities.Cart.CartItemEntity", b =>
@@ -101,7 +106,7 @@ namespace RepositoryLayer.Migrations
 
                     b.HasIndex("CartId");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItem");
                 });
 
             modelBuilder.Entity("BookStore.Models.Entities.Order.OrderEntity", b =>
@@ -111,6 +116,9 @@ namespace RepositoryLayer.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<int?>("BookEntityBookId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
@@ -130,9 +138,11 @@ namespace RepositoryLayer.Migrations
 
                     b.HasKey("OrderId");
 
+                    b.HasIndex("BookEntityBookId");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("BookStore.Models.Entities.Order.OrderItemEntity", b =>
@@ -161,7 +171,7 @@ namespace RepositoryLayer.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItem");
                 });
 
             modelBuilder.Entity("BookStore.Models.Entities.User.UserEntity", b =>
@@ -219,10 +229,15 @@ namespace RepositoryLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WishlistId"));
 
+                    b.Property<int?>("BookEntityBookId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("WishlistId");
+
+                    b.HasIndex("BookEntityBookId");
 
                     b.HasIndex("UserId");
 
@@ -254,6 +269,10 @@ namespace RepositoryLayer.Migrations
 
             modelBuilder.Entity("BookStore.Models.Entities.Cart.CartEntity", b =>
                 {
+                    b.HasOne("BookStore.Models.Entities.Book.BookEntity", null)
+                        .WithMany("Carts")
+                        .HasForeignKey("BookEntityBookId");
+
                     b.HasOne("BookStore.Models.Entities.User.UserEntity", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -268,7 +287,7 @@ namespace RepositoryLayer.Migrations
                     b.HasOne("BookStore.Models.Entities.Book.BookEntity", "Book")
                         .WithMany()
                         .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("BookStore.Models.Entities.Cart.CartEntity", "Cart")
@@ -284,6 +303,10 @@ namespace RepositoryLayer.Migrations
 
             modelBuilder.Entity("BookStore.Models.Entities.Order.OrderEntity", b =>
                 {
+                    b.HasOne("BookStore.Models.Entities.Book.BookEntity", null)
+                        .WithMany("Orders")
+                        .HasForeignKey("BookEntityBookId");
+
                     b.HasOne("BookStore.Models.Entities.User.UserEntity", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -298,7 +321,7 @@ namespace RepositoryLayer.Migrations
                     b.HasOne("BookStore.Models.Entities.Book.BookEntity", "Book")
                         .WithMany()
                         .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("BookStore.Models.Entities.Order.OrderEntity", "Order")
@@ -314,6 +337,10 @@ namespace RepositoryLayer.Migrations
 
             modelBuilder.Entity("BookStore.Models.Entities.Wishlist.WishlistEntity", b =>
                 {
+                    b.HasOne("BookStore.Models.Entities.Book.BookEntity", null)
+                        .WithMany("WishLists")
+                        .HasForeignKey("BookEntityBookId");
+
                     b.HasOne("BookStore.Models.Entities.User.UserEntity", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -328,7 +355,7 @@ namespace RepositoryLayer.Migrations
                     b.HasOne("BookStore.Models.Entities.Book.BookEntity", "Book")
                         .WithMany()
                         .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("BookStore.Models.Entities.Wishlist.WishlistEntity", "Wishlist")
@@ -340,6 +367,15 @@ namespace RepositoryLayer.Migrations
                     b.Navigation("Book");
 
                     b.Navigation("Wishlist");
+                });
+
+            modelBuilder.Entity("BookStore.Models.Entities.Book.BookEntity", b =>
+                {
+                    b.Navigation("Carts");
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("WishLists");
                 });
 
             modelBuilder.Entity("BookStore.Models.Entities.Cart.CartEntity", b =>

@@ -6,14 +6,18 @@ using BookStore.Models.Entities.User;
 
 namespace BookStore.Models.Entities.Order
 {
+    [Table("Order")]
     public class OrderEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderId { get; set; }
 
         [Required]
-        [ForeignKey("User")]
         public int UserId { get; set; }
+
+        [ForeignKey("UserId")]
+        public UserEntity User { get; set; }
 
         [Required]
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
@@ -23,11 +27,9 @@ namespace BookStore.Models.Entities.Order
         public decimal TotalAmount { get; set; }
 
         [Required]
-        public string Status { get; set; } 
+        public string Status { get; set; }
 
         public string? ShippingAddress { get; set; }
-
-        public UserEntity User { get; set; }
 
         public ICollection<OrderItemEntity>? OrderItems { get; set; }
     }

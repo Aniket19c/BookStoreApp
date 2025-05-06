@@ -1,4 +1,5 @@
-﻿using BookStore.Models.DTO.User;
+﻿using BookStore.Models.Context;
+using BookStore.Models.DTO.User;
 using BookStore.Models.Entities.User;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
