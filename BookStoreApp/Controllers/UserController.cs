@@ -101,10 +101,11 @@ namespace BookStore.Controllers
         }
 
         [HttpPost("forget-password")]
-        public async Task<IActionResult> ForgetPassword([FromBody] string email)
+        public async Task<IActionResult> ForgetPassword(string email)
         {
             try
             {
+                logger.Info($"ForgetPassword endpoint called with email: {email}");
                 var response = await _userBL.ForgetPasswordAsync(email);
                 if (response.success)
                     return Ok(response);

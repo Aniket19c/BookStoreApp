@@ -1,6 +1,7 @@
 ﻿using BookStore.Models.Context;
 using BookStore.Models.DTO.User;
 using BookStore.Models.Entities.User;
+using ConsumerService;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
@@ -30,13 +31,17 @@ namespace RepositoryLayer.Services
         private readonly IDistributedCache _cache;
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly JwtTokenHelper _jwtHelper;
+        private readonly RabbitMqProducer _producer;  
+        private readonly RabbitMqConsumer _consumer;
 
-        public UserRLImpl(BookStoreDbContext context, IConfiguration configuration, IDistributedCache cache, JwtTokenHelper jwtHelper)
+        public UserRLImpl(BookStoreDbContext context, IConfiguration configuration, IDistributedCache cache, JwtTokenHelper jwtHelper, RabbitMqProducer producer, RabbitMqConsumer consumer)
         {
             _context = context;
             _configuration = configuration;
             _cache = cache;
             _jwtHelper = jwtHelper;
+            _producer = producer; 
+            _consumer = consumer;
         }
 
         public async Task<ResponseDto<string>> RegisterUserAsync(UserRequestDto request)
@@ -208,32 +213,38 @@ namespace RepositoryLayer.Services
         {
             try
             {
-                _logger.Info("ForgetPasswordAsync called");
-
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                _logger.Info($"Sending token to: {email}");
+                var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
                 if (user == null)
                 {
-                    _logger.Warn("Forget password attempted for non-existing user");
+                    _logger.Warn("Email not found");
                     throw new UserNotFoundException();
                 }
 
-                string token = Guid.NewGuid().ToString();
+               
+                var token = _jwtHelper.GenerateToken(user.Email, user.UserId,user.Role);
 
-                await _cache.SetStringAsync($"ResetToken_{email}", token, new DistributedCacheEntryOptions
+               
+                _producer.SendOtpQueue(email, token);
+
+                _consumer.Consume();
+
+                _logger.Info("Token sent successfully");
+
+                return new ResponseDto<string>
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15)
-                });
-
-                _logger.Info($"Reset token generated for {email}");
-
-                return new ResponseDto<string> { success = true, message = "Reset link sent", data = token };
+                    success = true,
+                    message = "Token sent to your email address.",
+                    data = null
+                };
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Error in forget password");
+                _logger.Warn(ex, "Exception in ForgetPasswordAsync");
                 throw;
             }
         }
+
 
         public async Task<ResponseDto<string>> ResetPasswordAsync(ResetPasswordDto dto, string email)
         {

@@ -13,6 +13,8 @@ using System.Text;
 using BusinessLayer.Interfaces;
 using BusinessLayer.Services;
 using BookStore.Models.Context;
+using Repository.Helper; 
+using ConsumerService;
 
 namespace BookStoreApp
 {
@@ -30,25 +32,33 @@ namespace BookStoreApp
                 builder.Logging.SetMinimumLevel(LogLevel.Information);
                 builder.Host.UseNLog();
 
-                
+              
                 builder.Services.AddDbContext<BookStoreDbContext>(options =>
                     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-              
+           
                 builder.Services.AddStackExchangeRedisCache(options =>
                 {
                     options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
                     options.InstanceName = "BookStoreRedis_";
                 });
 
-              
                 builder.Services.AddScoped<IUserRL, UserRLImpl>();
                 builder.Services.AddScoped<IUserBL, UserBLImpl>();
-                builder.Services.AddScoped<IBookRL,BookRLImpl>();
+                builder.Services.AddScoped<IBookRL, BookRLImpl>();
                 builder.Services.AddScoped<IBookBL, BookBLImpl>();
                 builder.Services.AddSingleton<JwtTokenHelper>();
 
-                
+
+                builder.Services.AddSingleton<RabbitMqProducer>();
+                builder.Services.AddSingleton<RabbitMqConsumer>();
+                builder.Services.AddHostedService(provider =>
+                {
+                    var consumer = provider.GetRequiredService<RabbitMqConsumer>();
+                    return new RabbitMqBackgroundService(consumer);
+                });
+
+
                 var jwtKey = builder.Configuration["JWT:SecretKey"];
                 var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
 
@@ -71,7 +81,6 @@ namespace BookStoreApp
                     };
                 });
 
-               
                 builder.Services.AddControllers();
                 builder.Services.AddEndpointsApiExplorer();
                 builder.Services.AddSwaggerGen(options =>
@@ -93,25 +102,23 @@ namespace BookStoreApp
                     });
 
                     options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
+                    {
+                        {
+                            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                            {
+                                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                                {
+                                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+                        }
+                    });
                 });
-
 
                 var app = builder.Build();
 
-              
                 if (app.Environment.IsDevelopment())
                 {
                     app.UseSwagger();
@@ -120,9 +127,8 @@ namespace BookStoreApp
 
                 app.UseHttpsRedirection();
 
-          
-                app.UseAuthentication(); 
-                app.UseAuthorization();  
+                app.UseAuthentication();
+                app.UseAuthorization();
 
                 app.MapControllers();
                 app.Run();
@@ -136,6 +142,21 @@ namespace BookStoreApp
             {
                 NLog.LogManager.Shutdown();
             }
+        }
+    }
+    public class RabbitMqBackgroundService : BackgroundService
+    {
+        private readonly RabbitMqConsumer _consumer;
+
+        public RabbitMqBackgroundService(RabbitMqConsumer consumer)
+        {
+            _consumer = consumer;
+        }
+
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _consumer.Consume();
+            return Task.CompletedTask;
         }
     }
 }

@@ -14,4 +14,8 @@
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RabbitMqConsumer\RabbitMqConsumer.csproj" />
+  </ItemGroup>
+
 </Project>
