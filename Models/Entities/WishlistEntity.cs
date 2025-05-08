@@ -1,22 +1,25 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Models;
-using Models.Entities;
 
 namespace Models.Entities
 {
+    [Table("WishList")]
     public class WishlistEntity
     {
         [Key]
-        public int WishlistId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int WishListId { get; set; }
 
         [Required]
-        [ForeignKey("User")]
         public int UserId { get; set; }
 
+        [ForeignKey("UserId")]
         public UserEntity User { get; set; }
 
-        //add BookId
+        [Required]
+        public int BookId { get; set; }
+
+        [ForeignKey("BookId")]
+        public BookEntity Book { get; set; }
     }
 }

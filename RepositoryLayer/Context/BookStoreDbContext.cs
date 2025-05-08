@@ -15,39 +15,42 @@ namespace BookStore.Models.Context
         public DbSet<AddressEntity> Addresses { get; set; }
         public DbSet<WishlistEntity> Wishlists { get; set; }
 
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            
             modelBuilder.Entity<CartEntity>()
                 .HasOne(c => c.User)
                 .WithMany(u => u.Carts)
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            
+            modelBuilder.Entity<CartEntity>()
+                .HasOne(c => c.Book)
+                .WithMany(b => b.Carts)
+                .HasForeignKey(c => c.BookId)
+                .OnDelete(DeleteBehavior.Restrict);
 
+           
             modelBuilder.Entity<OrderEntity>()
                 .HasOne(o => o.User)
                 .WithMany(u => u.Orders)
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
+            
             modelBuilder.Entity<WishlistEntity>()
                 .HasOne(w => w.User)
                 .WithMany(u => u.Wishlists)
                 .HasForeignKey(w => w.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
-            modelBuilder.Entity<CartEntity>()
-            .HasOne(c => c.Book)
-                .WithMany(b => b.Carts)
-                 .HasForeignKey(c => c.BookId)
-                 .OnDelete(DeleteBehavior.Restrict);
-
-
+           
+            modelBuilder.Entity<WishlistEntity>()
+                .HasOne(w => w.Book)
+                .WithMany(b => b.Wishlists)
+                .HasForeignKey(w => w.BookId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

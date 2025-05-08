@@ -52,6 +52,10 @@ namespace BookStoreApp
                 builder.Services.AddScoped<IBookBL, BookBLImpl>();
                 builder.Services.AddScoped<IAddressRL, AddressRLImpl>();
                 builder.Services.AddScoped<IAddressBL, AddressBLImpl>();
+                builder.Services.AddScoped<ICartRL,CartRLImpl>();
+                builder.Services.AddScoped<ICartBL,CartBLImpl>();
+                builder.Services.AddScoped<IWishListRL,WishListRLImpl>();
+                builder.Services.AddScoped<IWishlistBL, WishListBLImpl>();
                 builder.Services.AddSingleton<JwtTokenHelper>();
 
 

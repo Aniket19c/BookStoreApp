@@ -21,6 +21,6 @@ namespace Models.Entities
 
         public ICollection<CartEntity> Carts { get; set; }
         public ICollection<OrderEntity> Orders { get; set; }
-        public ICollection<WishlistEntity> WishLists { get; set; }
+        public ICollection<WishlistEntity> Wishlists { get; set; }
     }
 }
