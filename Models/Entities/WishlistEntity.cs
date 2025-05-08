@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BookStore.Models.Entities.User;
+using Models;
+using Models.Entities;
 
-namespace BookStore.Models.Entities.Wishlist
+namespace Models.Entities
 {
     public class WishlistEntity
     {

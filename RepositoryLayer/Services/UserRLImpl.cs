@@ -1,11 +1,11 @@
 ﻿using BookStore.Models.Context;
 using BookStore.Models.DTO.User;
-using BookStore.Models.Entities.User;
 using ConsumerService;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
+using Models.Entities;
 using Newtonsoft.Json;
 using NLog;
 using Repository.DTO;

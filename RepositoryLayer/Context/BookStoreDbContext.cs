@@ -1,9 +1,6 @@
-﻿using BookStore.Models.Entities.Book;
-using BookStore.Models.Entities.Cart;
-using BookStore.Models.Entities.Order;
-using BookStore.Models.Entities.User;
-using BookStore.Models.Entities.Wishlist;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Model.Entities;
+using Models.Entities;
 
 namespace BookStore.Models.Context
 {
@@ -15,7 +12,10 @@ namespace BookStore.Models.Context
         public DbSet<BookEntity> Books { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }
         public DbSet<CartEntity> Carts { get; set; }
+        public DbSet<AddressEntity> Addresses { get; set; }
         public DbSet<WishlistEntity> Wishlists { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

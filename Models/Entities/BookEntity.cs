@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BookStore.Models.Entities.Cart;
-using BookStore.Models.Entities.Order;
-using BookStore.Models.Entities.Wishlist;
+using Models;
+using Models.Entities;
 
-namespace BookStore.Models.Entities.Book
+namespace Models.Entities
 {
     public class BookEntity
     {

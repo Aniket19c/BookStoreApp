@@ -15,6 +15,9 @@ using BusinessLayer.Services;
 using BookStore.Models.Context;
 using Repository.Helper; 
 using ConsumerService;
+using Repository.Interface;
+using Repository.Implementation;
+using Business.Implementation;
 
 namespace BookStoreApp
 {
@@ -47,6 +50,8 @@ namespace BookStoreApp
                 builder.Services.AddScoped<IUserBL, UserBLImpl>();
                 builder.Services.AddScoped<IBookRL, BookRLImpl>();
                 builder.Services.AddScoped<IBookBL, BookBLImpl>();
+                builder.Services.AddScoped<IAddressRL, AddressRLImpl>();
+                builder.Services.AddScoped<IAddressBL, AddressBLImpl>();
                 builder.Services.AddSingleton<JwtTokenHelper>();
 
 

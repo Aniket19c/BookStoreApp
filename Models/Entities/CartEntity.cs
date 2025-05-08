@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BookStore.Models.Entities.Book;
-using BookStore.Models.Entities.User;
+using Models;
+using Models.Entities;
 
-namespace BookStore.Models.Entities.Cart
+namespace Models.Entities
 {
     [Table("Cart")]
     public class CartEntity

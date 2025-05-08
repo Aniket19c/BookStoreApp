@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BookStore.Models.Entities.User;
+using Models;
+using Models.Entities;
 
-namespace BookStore.Models.Entities.Order
+namespace Models.Entities
 {
     [Table("Order")]
     public class OrderEntity
