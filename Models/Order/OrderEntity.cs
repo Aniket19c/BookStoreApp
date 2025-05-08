@@ -31,6 +31,7 @@ namespace BookStore.Models.Entities.Order
 
         public string? ShippingAddress { get; set; }
 
-        public ICollection<OrderItemEntity>? OrderItems { get; set; }
+        //add bookid
+
     }
 }

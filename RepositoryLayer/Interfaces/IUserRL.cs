@@ -7,7 +7,7 @@ namespace RepositoryLayer.Interfaces
 {
     public interface IUserRL
     {
-        Task<ResponseDto<string>> RegisterUserAsync(UserRequestDto request);
+        Task<ResponseDto<UserResponseDto>> RegisterUserAsync(UserRequestDto request);
         Task<ResponseDto<string>> DeleteUserAsync(string email);
         Task<ResponseDto<List<UserResponseDto>>> GetAllUsersAsync();
         Task<ResponseDto<LoginResponseDto>> UserLoginAsync(LoginDto request);

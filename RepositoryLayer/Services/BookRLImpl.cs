@@ -21,7 +21,7 @@ public class BookRLImpl : IBookRL
         _cache = cache;
     }
 
-    public async Task<ResponseDto<string>> AddBookAsync(BookRequestDto request)
+    public async Task<ResponseDto<BookResponseDto>> AddBookAsync(BookRequestDto request)
     {
         try
         {
@@ -37,19 +37,44 @@ public class BookRLImpl : IBookRL
                 Price = request.Price
             };
 
+            
             await _context.Books.AddAsync(book);
             await _context.SaveChangesAsync();
 
+            _logger.Info($"Book added successfully with BookId: {book.BookId}");
+
+            
             await _cache.RemoveAsync("AllBooks");
+
+            var bookResponse = new BookResponseDto
+            {
+                BookId = book.BookId, 
+                BookName = book.BookName,
+                BookImage = book.BookImage,
+                Description = book.Description,
+                AuthorName = book.AuthorName,
+                Quantity = book.Quantity,
+                Price = book.Price
+            };
 
             _logger.Info("Book added successfully and cache invalidated");
 
-            return new ResponseDto<string> { success = true, message = "Book added successfully", data = null };
+            return new ResponseDto<BookResponseDto>
+            {
+                success = true,
+                message = "Book added successfully",
+                data = bookResponse
+            };
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error adding book");
-            throw;
+            return new ResponseDto<BookResponseDto>
+            {
+                success = false,
+                message = "Error adding book",
+                data = null
+            };
         }
     }
 
@@ -57,7 +82,7 @@ public class BookRLImpl : IBookRL
     {
         try
         {
-            _logger.Info("GetBookByIdAsync called");
+            _logger.Info("GetBookByIdAsync called with BookId: {0}", bookId);
 
             string cacheKey = $"Book_{bookId}";
             var cachedBook = await _cache.GetStringAsync(cacheKey);
@@ -65,24 +90,28 @@ public class BookRLImpl : IBookRL
             {
                 var book = JsonConvert.DeserializeObject<BookResponseDto>(cachedBook);
                 _logger.Info("Book retrieved from cache");
-                return new ResponseDto<BookResponseDto> { success = true, message = "Book fetched", data = book };
+                return new ResponseDto<BookResponseDto> { success = true, message = "Book fetched from cache", data = book };
             }
 
             var bookEntity = await _context.Books.FindAsync(bookId);
             if (bookEntity == null)
             {
-                _logger.Warn("Book not found");
+                _logger.Warn("Book not found for BookId: {0}", bookId);
                 throw new BookNotFoundException();
             }
 
             var response = new BookResponseDto
             {
+                BookId = bookEntity.BookId,
                 BookName = bookEntity.BookName,
                 AuthorName = bookEntity.AuthorName,
                 Description = bookEntity.Description,
                 Price = bookEntity.Price,
+                BookImage = bookEntity.BookImage,
+                Quantity = bookEntity.Quantity
             };
 
+            
             string serializedData = JsonConvert.SerializeObject(response);
             await _cache.SetStringAsync(cacheKey, serializedData, new DistributedCacheEntryOptions
             {
@@ -113,18 +142,24 @@ public class BookRLImpl : IBookRL
             {
                 var books = JsonConvert.DeserializeObject<List<BookResponseDto>>(cachedBooks);
                 _logger.Info("Books retrieved from cache");
-                return new ResponseDto<List<BookResponseDto>> { success = true, message = "Books fetched", data = books };
+                return new ResponseDto<List<BookResponseDto>> { success = true, message = "Books fetched from cache", data = books };
             }
 
             var bookEntities = await _context.Books.ToListAsync();
+
+           
             var response = bookEntities.Select(book => new BookResponseDto
             {
+                BookId = book.BookId,
                 BookName = book.BookName,
-                AuthorName = book.AuthorName,
+                BookImage = book.BookImage,
                 Description = book.Description,
-                Price = book.Price,
+                AuthorName = book.AuthorName,
+                Quantity = book.Quantity,
+                Price = book.Price
             }).ToList();
 
+            
             string serializedData = JsonConvert.SerializeObject(response);
             await _cache.SetStringAsync(cacheKey, serializedData, new DistributedCacheEntryOptions
             {

@@ -9,6 +9,7 @@ namespace BookStore.Models.Entities.Book
     public class BookEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BookId { get; set; }
 
         [Required]

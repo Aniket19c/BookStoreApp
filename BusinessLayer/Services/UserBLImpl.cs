@@ -17,7 +17,7 @@ namespace BookStore.BusinessLayer.Services
             _userRL = userRL;
         }
 
-        public async Task<ResponseDto<string>> RegisterUserAsync(UserRequestDto request)
+        public async Task<ResponseDto<UserResponseDto>> RegisterUserAsync(UserRequestDto request)
         {
             _logger.Info("Calling RegisterUserAsync in UserBLImpl");
             return await _userRL.RegisterUserAsync(request);

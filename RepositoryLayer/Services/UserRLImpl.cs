@@ -44,7 +44,7 @@ namespace RepositoryLayer.Services
             _consumer = consumer;
         }
 
-        public async Task<ResponseDto<string>> RegisterUserAsync(UserRequestDto request)
+        public async Task<ResponseDto<UserResponseDto>> RegisterUserAsync(UserRequestDto request)
         {
             try
             {
@@ -72,24 +72,39 @@ namespace RepositoryLayer.Services
                     LastName = request.LastName,
                     PasswordHash = PasswordHelper.HashPassword(request.Password),
                     PhoneNumber = request.PhoneNumber,
-                    Address = request.Address,
-                    Role = request.Role
+                    Address = request.Address
                 };
 
                 await _context.Users.AddAsync(user);
                 await _context.SaveChangesAsync();
 
-                await _cache.RemoveAsync("AllUsers");
+               
+                var responseDto = new UserResponseDto
+                {
+                    UserId = user.UserId,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    PhoneNumber = user.PhoneNumber,
+                    Address = user.Address
+                };
 
-                string serializedUser = JsonConvert.SerializeObject(user);
+                string serializedUser = JsonConvert.SerializeObject(responseDto); 
                 await _cache.SetStringAsync(cacheKey, serializedUser, new DistributedCacheEntryOptions
                 {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
                 });
 
+                await _cache.RemoveAsync("AllUsers"); 
+
                 _logger.Info("User registered successfully and cached");
 
-                return new ResponseDto<string> { success = true, message = "User registered", data = null };
+                return new ResponseDto<UserResponseDto>
+                {
+                    success = true,
+                    message = "User registered",
+                    data = responseDto
+                };
             }
             catch (UserAlreadyExistsException ex)
             {
@@ -102,6 +117,8 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+
+
 
         public async Task<ResponseDto<string>> DeleteUserAsync(string email)
         {
@@ -146,16 +163,24 @@ namespace RepositoryLayer.Services
                 {
                     var users = JsonConvert.DeserializeObject<List<UserResponseDto>>(cachedUsers);
                     _logger.Info("Users retrieved from cache");
-                    return new ResponseDto<List<UserResponseDto>> { success = true, message = "Users fetched", data = users };
+                    return new ResponseDto<List<UserResponseDto>>
+                    {
+                        success = true,
+                        message = "Users fetched",
+                        data = users
+                    };
                 }
 
                 var userEntities = await _context.Users.ToListAsync();
+
                 var response = userEntities.Select(user => new UserResponseDto
                 {
+                    UserId = user.UserId, 
                     Email = user.Email,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
-                    Role = user.Role
+                    PhoneNumber = user.PhoneNumber,
+                    Address = user.Address
                 }).ToList();
 
                 string serializedData = JsonConvert.SerializeObject(response);
@@ -166,7 +191,12 @@ namespace RepositoryLayer.Services
 
                 _logger.Info("Users fetched from DB and cached");
 
-                return new ResponseDto<List<UserResponseDto>> { success = true, message = "Users fetched", data = response };
+                return new ResponseDto<List<UserResponseDto>>
+                {
+                    success = true,
+                    message = "Users fetched",
+                    data = response
+                };
             }
             catch (Exception ex)
             {
@@ -174,6 +204,7 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+
 
         public async Task<ResponseDto<LoginResponseDto>> UserLoginAsync(LoginDto request)
         {
@@ -188,13 +219,14 @@ namespace RepositoryLayer.Services
                     throw new InvalidCredentialsException();
                 }
 
-             
-                string token = _jwtHelper.GenerateToken(user.Email, user.UserId,user.Role);
+                
+                string token = _jwtHelper.GenerateToken(user.Email, user.UserId);
 
                 var loginResponse = new LoginResponseDto
                 {
-                    Role = user.Role,
-                    Token = token 
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Token = token
                 };
 
                 _logger.Info("User logged in successfully with JWT");
@@ -204,9 +236,11 @@ namespace RepositoryLayer.Services
             catch (Exception ex)
             {
                 _logger.Error(ex, "Login error");
-                throw;
+                return new ResponseDto<LoginResponseDto> { success = false, message = "An error occurred during login", data = null };
             }
         }
+
+
 
 
         public async Task<ResponseDto<string>> ForgetPasswordAsync(string email)
@@ -221,10 +255,9 @@ namespace RepositoryLayer.Services
                     throw new UserNotFoundException();
                 }
 
-               
-                var token = _jwtHelper.GenerateToken(user.Email, user.UserId,user.Role);
+                
+                var token = _jwtHelper.GenerateToken(user.Email, user.UserId);
 
-               
                 _producer.SendOtpQueue(email, token);
 
                 _consumer.Consume();
@@ -244,6 +277,7 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+
 
 
         public async Task<ResponseDto<string>> ResetPasswordAsync(ResetPasswordDto dto, string email)

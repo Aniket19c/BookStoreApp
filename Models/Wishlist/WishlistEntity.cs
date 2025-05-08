@@ -16,6 +16,6 @@ namespace BookStore.Models.Entities.Wishlist
 
         public UserEntity User { get; set; }
 
-        public ICollection<WishlistItemEntity>? WishlistItems { get; set; }
+        //add BookId
     }
 }

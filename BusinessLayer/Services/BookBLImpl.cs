@@ -17,7 +17,7 @@ namespace BusinessLayer.Services
             _logger = logger;
         }
 
-        public async Task<ResponseDto<string>> AddBookAsync(BookRequestDto request)
+        public async Task<ResponseDto<BookResponseDto>> AddBookAsync(BookRequestDto request)
         {
             try
             {

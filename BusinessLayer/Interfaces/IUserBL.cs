@@ -6,7 +6,7 @@ namespace Business.Interface
 {
     public interface IUserBL
     {
-        Task<ResponseDto<string>> RegisterUserAsync(UserRequestDto request);
+        Task<ResponseDto<UserResponseDto>> RegisterUserAsync(UserRequestDto request);
         Task<ResponseDto<string>> DeleteUserAsync(string email);
         Task<ResponseDto<List<UserResponseDto>>> GetAllUsersAsync();
         Task<ResponseDto<LoginResponseDto>> UserLoginAsync(LoginDto request);

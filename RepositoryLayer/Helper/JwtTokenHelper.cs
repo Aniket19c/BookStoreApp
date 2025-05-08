@@ -14,31 +14,27 @@ namespace Repository_Layer.Helper
         {
             _configuration = configuration;
         }
-        public string GenerateToken(string email, int userId, string role)
+
+        public string GenerateToken(string email, int userId)
         {
             if (string.IsNullOrEmpty(email))
                 throw new ArgumentNullException(nameof(email), "Email cannot be null or empty");
-
-            if (string.IsNullOrEmpty(role))
-                throw new ArgumentNullException(nameof(role), "Role cannot be null or empty");
 
             var key = _configuration["JWT:SecretKey"];
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException(nameof(key), "JWT Key is missing in the configuration");
 
-
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"]));
-
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-                 new Claim(ClaimTypes.Email, email),
-                 new Claim("UserId", userId.ToString()),
-                 new Claim(ClaimTypes.Role, role),
-                 new Claim(JwtRegisteredClaimNames.Sub, email),
-                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-             };
+                new Claim(ClaimTypes.Email, email),
+                new Claim("UserId", userId.ToString()),
+
+                new Claim(JwtRegisteredClaimNames.Sub, email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
             var issuer = _configuration["Jwt:Issuer"];
             var audience = _configuration["Jwt:Audience"];
@@ -56,6 +52,5 @@ namespace Repository_Layer.Helper
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }

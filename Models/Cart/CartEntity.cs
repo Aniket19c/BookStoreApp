@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BookStore.Models.Entities.Book;
 using BookStore.Models.Entities.User;
 
 namespace BookStore.Models.Entities.Cart
@@ -18,6 +18,12 @@ namespace BookStore.Models.Entities.Cart
         [ForeignKey("UserId")]
         public UserEntity User { get; set; }
 
-        public ICollection<CartItemEntity> CartItems { get; set; } = new List<CartItemEntity>();
+        [Required]
+        [Column("BookId")]  
+        public int BookId { get; set; }
+        public BookEntity Book { get; set; }
+        public int Quantity { get; set; } = 1;
+        public bool IsOrdered { get; set; } = false;
+        public bool IsUnCarted { get; set; } = false;
     }
 }
