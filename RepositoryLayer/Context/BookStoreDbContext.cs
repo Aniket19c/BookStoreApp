@@ -31,7 +31,7 @@ namespace BookStore.Models.Context
                 .HasForeignKey(c => c.BookId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-           
+            
             modelBuilder.Entity<OrderEntity>()
                 .HasOne(o => o.User)
                 .WithMany(u => u.Orders)
@@ -39,13 +39,26 @@ namespace BookStore.Models.Context
                 .OnDelete(DeleteBehavior.Cascade);
 
             
+            modelBuilder.Entity<OrderEntity>()
+                .HasOne(o => o.Book)
+                .WithMany()
+                .HasForeignKey(o => o.BookId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            
+            modelBuilder.Entity<OrderEntity>()
+                .HasOne(o => o.Address)
+                .WithMany()
+                .HasForeignKey(o => o.AddressId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<WishlistEntity>()
                 .HasOne(w => w.User)
                 .WithMany(u => u.Wishlists)
                 .HasForeignKey(w => w.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-           
+
             modelBuilder.Entity<WishlistEntity>()
                 .HasOne(w => w.Book)
                 .WithMany(b => b.Wishlists)

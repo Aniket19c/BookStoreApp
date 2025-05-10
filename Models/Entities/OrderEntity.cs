@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Models;
-using Models.Entities;
+using Model.Entities;
 
 namespace Models.Entities
 {
@@ -30,9 +28,21 @@ namespace Models.Entities
         [Required]
         public string Status { get; set; }
 
+        [Required]
+        public int AddressId { get; set; }
+
+        [ForeignKey("AddressId")]
+        public AddressEntity Address { get; set; }
+
         public string? ShippingAddress { get; set; }
 
-        //add bookid
+        [Required]
+        public int BookId { get; set; }
 
+        [ForeignKey("BookId")]
+        public BookEntity Book { get; set; }
+
+        [Required]
+        public int Quantity { get; set; } 
     }
 }
