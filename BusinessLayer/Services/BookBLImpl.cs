@@ -1,6 +1,6 @@
 ﻿using BookStore.Models.DTO;
 using BusinessLayer.Interfaces;
-using Microsoft.Extensions.Logging;
+using NLog;
 using RepositoryLayer.DTO;
 using RepositoryLayer.Interfaces;
 
@@ -9,36 +9,35 @@ namespace BusinessLayer.Services
     public class BookBLImpl : IBookBL
     {
         private readonly IBookRL _bookRL;
-        private readonly ILogger<BookBLImpl> _logger;
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-        public BookBLImpl(IBookRL bookRL, ILogger<BookBLImpl> logger)
+        public BookBLImpl(IBookRL bookRL)
         {
             _bookRL = bookRL;
-            _logger = logger;
         }
 
         public async Task<ResponseDto<BookResponseDto>> AddBookAsync(BookRequestDto request)
         {
             try
             {
-                _logger.LogInformation("AddBookAsync called ");
+                _logger.Info("AddBookAsync called");
 
                 var response = await _bookRL.AddBookAsync(request);
 
                 if (response.success)
                 {
-                    _logger.LogInformation("Book added successfully");
+                    _logger.Info("Book added successfully");
                 }
                 else
                 {
-                    _logger.LogWarning("Failed to add book");
+                    _logger.Warn("Failed to add book");
                 }
 
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while adding book");
+                _logger.Error(ex, "Error occurred while adding book");
                 throw;
             }
         }
@@ -47,24 +46,24 @@ namespace BusinessLayer.Services
         {
             try
             {
-                _logger.LogInformation("GetBookByIdAsync called with BookId: {BookId}", bookId);
+                _logger.Info("GetBookByIdAsync called with BookId: {0}", bookId);
 
                 var response = await _bookRL.GetBookByIdAsync(bookId);
 
                 if (response.success)
                 {
-                    _logger.LogInformation("Book retrieved successfully with BookId: {BookId}", bookId);
+                    _logger.Info("Book retrieved successfully with BookId: {0}", bookId);
                 }
                 else
                 {
-                    _logger.LogWarning("No book found for BookId: {BookId}", bookId);
+                    _logger.Warn("No book found for BookId: {0}", bookId);
                 }
 
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while retrieving book with BookId: {BookId}", bookId);
+                _logger.Error(ex, "Error occurred while retrieving book with BookId: {0}", bookId);
                 throw;
             }
         }
@@ -73,24 +72,24 @@ namespace BusinessLayer.Services
         {
             try
             {
-                _logger.LogInformation("GetAllBooksAsync called");
+                _logger.Info("GetAllBooksAsync called");
 
                 var response = await _bookRL.GetAllBooksAsync();
 
                 if (response.success)
                 {
-                    _logger.LogInformation("Retrieved {Count} books", response.data?.Count ?? 0);
+                    _logger.Info("Retrieved {0} books", response.data?.Count ?? 0);
                 }
                 else
                 {
-                    _logger.LogWarning("No books found");
+                    _logger.Warn("No books found");
                 }
 
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while retrieving all books");
+                _logger.Error(ex, "Error occurred while retrieving all books");
                 throw;
             }
         }

@@ -10,19 +10,30 @@ using System.Security.Claims;
 
 namespace BookStore.Controllers
 {
+    /// <summary>
+    /// Controller for managing user operations like registration, login, and password management.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-
     public class UserController : ControllerBase
     {
         private readonly IUserBL _userBL;
         private static readonly NLog.ILogger logger = LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// Initializes the UserController with the required dependencies.
+        /// </summary>
+        /// <param name="userBL">The business logic layer for user-related operations</param>
         public UserController(IUserBL userBL)
         {
             _userBL = userBL;
         }
 
+        /// <summary>
+        /// Registers a new user.
+        /// </summary>
+        /// <param name="request">User registration details</param>
+        /// <returns>Success or failure response</returns>
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRequestDto request)
         {
@@ -40,6 +51,11 @@ namespace BookStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a user based on their email.
+        /// </summary>
+        /// <param name="email">The email of the user to be deleted</param>
+        /// <returns>Success or failure response</returns>
         [HttpDelete("delete/{email}")]
         public async Task<IActionResult> DeleteUser([FromRoute] string email)
         {
@@ -57,6 +73,10 @@ namespace BookStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves all users.
+        /// </summary>
+        /// <returns>List of all users</returns>
         [HttpGet("all-users")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -74,6 +94,11 @@ namespace BookStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Logs in a user with the provided credentials.
+        /// </summary>
+        /// <param name="request">Login credentials</param>
+        /// <returns>Success or failure response</returns>
         [HttpPost("login")]
         public async Task<IActionResult> UserLoginAsync([FromBody] LoginDto request)
         {
@@ -100,6 +125,11 @@ namespace BookStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Handles the forgotten password scenario.
+        /// </summary>
+        /// <param name="email">The email address of the user requesting a password reset</param>
+        /// <returns>Success or failure response</returns>
         [HttpPost("forget-password")]
         public async Task<IActionResult> ForgetPassword(string email)
         {
@@ -118,6 +148,11 @@ namespace BookStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Resets the user's password.
+        /// </summary>
+        /// <param name="dto">Password reset details</param>
+        /// <returns>Success or failure response</returns>
         [HttpPost("reset-password")]
         [Authorize]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
@@ -142,7 +177,5 @@ namespace BookStore.Controllers
                 return StatusCode(500, new ResponseDto<string> { success = false, message = "Internal Server Error" });
             }
         }
-
     }
 }
-

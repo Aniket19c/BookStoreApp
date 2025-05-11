@@ -4,17 +4,29 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreApp.Controllers
 {
-   
+    /// <summary>
+    /// Controller responsible for handling book-related operations.
+    /// </summary>
     [ApiController]
-   [Route("api/[controller]")]
+    [Route("api/[controller]")]
     public class BookController : ControllerBase
     {
         private readonly IBookBL _bookBL;
+
+        /// <summary>
+        /// Constructor to inject the book business layer.
+        /// </summary>
+        /// <param name="bookBL">Business layer interface for book operations</param>
         public BookController(IBookBL bookBL)
         {
             _bookBL = bookBL;
         }
 
+        /// <summary>
+        /// Adds a new book to the system.
+        /// </summary>
+        /// <param name="request">Book details</param>
+        /// <returns>Success or failure response</returns>
         [HttpPost("add")]
         public async Task<IActionResult> AddBook([FromBody] BookRequestDto request)
         {
@@ -24,6 +36,11 @@ namespace BookStoreApp.Controllers
             return BadRequest(response);
         }
 
+        /// <summary>
+        /// Retrieves a book by its ID.
+        /// </summary>
+        /// <param name="id">Book ID</param>
+        /// <returns>Book details if found, otherwise 404</returns>
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetBookById(int id)
         {
@@ -33,6 +50,10 @@ namespace BookStoreApp.Controllers
             return NotFound(response);
         }
 
+        /// <summary>
+        /// Retrieves a list of all books.
+        /// </summary>
+        /// <returns>List of all books</returns>
         [HttpGet("getall")]
         public async Task<IActionResult> GetAllBooks()
         {
@@ -40,5 +61,4 @@ namespace BookStoreApp.Controllers
             return Ok(response);
         }
     }
-
 }

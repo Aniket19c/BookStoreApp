@@ -1,28 +1,28 @@
 ﻿using BusinessLayer.Interfaces;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http;  
+using Microsoft.AspNetCore.Http;
 using Models.Entities;
+using NLog;
 using RepositoryLayer.DTO;
 using RepositoryLayer.Interfaces;
+using System.Security.Claims;
 
 public class CartBLImpl : ICartBL
 {
     private readonly ICartRL _cartRL;
-    private readonly ILogger<CartBLImpl> _logger;
-    private readonly IHttpContextAccessor _httpContextAccessor;  
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-    public CartBLImpl(ICartRL cartRL, ILogger<CartBLImpl> logger, IHttpContextAccessor httpContextAccessor)
+    public CartBLImpl(ICartRL cartRL, IHttpContextAccessor httpContextAccessor)
     {
         _cartRL = cartRL;
-        _logger = logger;
-        _httpContextAccessor = httpContextAccessor;  
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<int> AddCartAsync(CartDto cartDto)
     {
         try
         {
-            var userId = GetUserIdFromClaims();  
+            var userId = GetUserIdFromClaims();
 
             var cartEntity = new CartEntity
             {
@@ -35,37 +35,68 @@ public class CartBLImpl : ICartBL
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while adding item to cart.");
+            _logger.Error(ex, "Error while adding item to cart.");
             throw new Exception("Error while adding item to cart.");
         }
     }
 
     public async Task<List<CartResponse>> GetCartByUserIdAsync()
     {
-        var userId = GetUserIdFromClaims();  
-        return await _cartRL.GetCartByUserIdAsync(userId);
+        try
+        {
+            var userId = GetUserIdFromClaims();
+            return await _cartRL.GetCartByUserIdAsync(userId);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error while retrieving cart items.");
+            throw;
+        }
     }
 
     public async Task<bool> UnCartAsync(int cartId)
     {
-        var userId = GetUserIdFromClaims(); 
-        return await _cartRL.UnCartAsync(cartId, userId);
+        try
+        {
+            var userId = GetUserIdFromClaims();
+            return await _cartRL.UnCartAsync(cartId, userId);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error while uncaring item.");
+            throw;
+        }
     }
 
     public async Task<bool> UpdateCartOrderAsync(int cartId, bool isOrdered)
     {
-        return await _cartRL.UpdateCartOrderAsync(cartId, isOrdered);
+        try
+        {
+            return await _cartRL.UpdateCartOrderAsync(cartId, isOrdered);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error while updating cart order.");
+            throw;
+        }
     }
 
     public async Task<bool> UpdateCartQuantityAsync(int cartId, int quantity)
     {
-        var userId = GetUserIdFromClaims();  
-        return await _cartRL.UpdateCartQuantityAsync(cartId, quantity, userId);
+        try
+        {
+            var userId = GetUserIdFromClaims();
+            return await _cartRL.UpdateCartQuantityAsync(cartId, quantity, userId);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error while updating cart quantity.");
+            throw;
+        }
     }
 
     private int GetUserIdFromClaims()
     {
-        
         var userIdClaim = _httpContextAccessor.HttpContext.User.FindFirst("UserId");
 
         if (userIdClaim != null)
@@ -76,11 +107,12 @@ public class CartBLImpl : ICartBL
             }
             else
             {
-                _logger.LogError($"Invalid UserId format in claims: {userIdClaim.Value}");
+                _logger.Error("Invalid UserId format in claims: {0}", userIdClaim.Value);
                 throw new UnauthorizedAccessException("Invalid UserId format.");
             }
         }
 
+        _logger.Error("UserId claim not found in token.");
         throw new UnauthorizedAccessException("User not authorized.");
     }
 }

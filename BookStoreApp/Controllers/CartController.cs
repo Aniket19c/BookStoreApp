@@ -5,6 +5,9 @@ using RepositoryLayer.DTO;
 
 namespace BookStore.Controllers
 {
+    /// <summary>
+    /// Controller responsible for managing cart operations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -13,13 +16,22 @@ namespace BookStore.Controllers
         private readonly ICartBL _cartBL;
         private readonly ILogger<CartController> _logger;
 
+        /// <summary>
+        /// Constructor to inject the cart business layer and logger.
+        /// </summary>
+        /// <param name="cartBL">Business layer for cart operations</param>
+        /// <param name="logger">Logger for cart operations</param>
         public CartController(ICartBL cartBL, ILogger<CartController> logger)
         {
             _cartBL = cartBL;
             _logger = logger;
         }
 
-       
+        /// <summary>
+        /// Retrieves the UserId from the claims in the current HTTP context.
+        /// </summary>
+        /// <returns>UserId</returns>
+        /// <exception cref="UnauthorizedAccessException">Thrown if the UserId claim is missing or invalid</exception>
         private int GetUserIdFromClaims()
         {
             var userIdClaim = User.FindFirst("UserId");
@@ -38,14 +50,18 @@ namespace BookStore.Controllers
             throw new UnauthorizedAccessException("User not authorized.");
         }
 
-        
+        /// <summary>
+        /// Adds an item to the user's cart.
+        /// </summary>
+        /// <param name="cartDto">Cart item details</param>
+        /// <returns>Result of the add operation</returns>
         [HttpPost("add")]
         public async Task<IActionResult> AddCart(CartDto cartDto)
         {
             try
             {
-                int userId = GetUserIdFromClaims(); 
-                var cartId = await _cartBL.AddCartAsync(cartDto); 
+                int userId = GetUserIdFromClaims();
+                var cartId = await _cartBL.AddCartAsync(cartDto);
                 if (cartId > 0)
                 {
                     _logger.LogInformation($"Cart item added for UserId {userId}");
@@ -63,13 +79,16 @@ namespace BookStore.Controllers
             }
         }
 
-        
+        /// <summary>
+        /// Retrieves all items in the user's cart.
+        /// </summary>
+        /// <returns>List of cart items</returns>
         [HttpGet("all")]
         public async Task<IActionResult> GetCart()
         {
             try
             {
-                int userId = GetUserIdFromClaims(); 
+                int userId = GetUserIdFromClaims();
                 var cartItems = await _cartBL.GetCartByUserIdAsync();
                 return Ok(cartItems);
             }
@@ -80,7 +99,11 @@ namespace BookStore.Controllers
             }
         }
 
-        
+        /// <summary>
+        /// Removes an item from the user's cart by cart ID.
+        /// </summary>
+        /// <param name="cartId">Cart ID to remove</param>
+        /// <returns>Result of the remove operation</returns>
         [HttpDelete("remove/{cartId}")]
         public async Task<IActionResult> RemoveCartItem(int cartId)
         {
@@ -105,7 +128,12 @@ namespace BookStore.Controllers
             }
         }
 
-        
+        /// <summary>
+        /// Updates the order status of a cart item.
+        /// </summary>
+        /// <param name="cartId">Cart ID to update</param>
+        /// <param name="isOrdered">New order status</param>
+        /// <returns>Result of the update operation</returns>
         [HttpPut("update-order/{cartId}")]
         public async Task<IActionResult> UpdateCartOrder(int cartId, [FromBody] bool isOrdered)
         {
@@ -128,7 +156,12 @@ namespace BookStore.Controllers
             }
         }
 
-        
+        /// <summary>
+        /// Updates the quantity of an item in the user's cart.
+        /// </summary>
+        /// <param name="cartId">Cart ID to update</param>
+        /// <param name="quantity">New quantity</param>
+        /// <returns>Result of the update operation</returns>
         [HttpPut("update-quantity/{cartId}")]
         public async Task<IActionResult> UpdateCartQuantity(int cartId, [FromBody] int quantity)
         {

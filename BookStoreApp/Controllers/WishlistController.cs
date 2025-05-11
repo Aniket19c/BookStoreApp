@@ -2,10 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Entities;
-
+using System;
+using System.Threading.Tasks;
 
 namespace BookStore.Controllers
 {
+    /// <summary>
+    /// Controller for managing users' wishlists.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
@@ -14,12 +18,22 @@ namespace BookStore.Controllers
         private readonly IWishlistBL _wishListBL;
         private readonly ILogger<WishListController> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WishListController"/> class.
+        /// </summary>
+        /// <param name="wishListBL">The business logic layer for wishlist operations.</param>
+        /// <param name="logger">Logger for logging errors and activities.</param>
         public WishListController(IWishlistBL wishListBL, ILogger<WishListController> logger)
         {
             _wishListBL = wishListBL;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Retrieves the UserId from the claims in the JWT token.
+        /// </summary>
+        /// <returns>UserId as an integer.</returns>
+        /// <exception cref="UnauthorizedAccessException">Thrown if UserId is missing or invalid in the claims.</exception>
         private int GetUserIdFromClaims()
         {
             var userIdClaim = User.FindFirst("UserId");
@@ -32,6 +46,11 @@ namespace BookStore.Controllers
             throw new UnauthorizedAccessException("Invalid or missing UserId in claims.");
         }
 
+        /// <summary>
+        /// Adds a book to the user's wishlist.
+        /// </summary>
+        /// <param name="bookId">The ID of the book to add.</param>
+        /// <returns>Result of the operation, with success or failure message.</returns>
         [HttpPost("add/{bookId}")]
         public async Task<IActionResult> AddToWishlist(int bookId)
         {
@@ -55,6 +74,11 @@ namespace BookStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Removes an item from the user's wishlist.
+        /// </summary>
+        /// <param name="wishListId">The ID of the wishlist item to remove.</param>
+        /// <returns>Result of the operation, with success or failure message.</returns>
         [HttpDelete("remove/{wishListId}")]
         public async Task<IActionResult> RemoveFromWishlist(int wishListId)
         {
@@ -71,6 +95,10 @@ namespace BookStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves all items in the user's wishlist.
+        /// </summary>
+        /// <returns>List of wishlist items.</returns>
         [HttpGet("all")]
         public async Task<IActionResult> GetAllWishlistItems()
         {

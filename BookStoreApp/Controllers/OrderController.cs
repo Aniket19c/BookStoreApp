@@ -7,6 +7,9 @@ using System.Security.Claims;
 
 namespace BookStoreApp.Controllers
 {
+    /// <summary>
+    /// Controller for handling order operations such as placing and retrieving orders.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -15,12 +18,22 @@ namespace BookStoreApp.Controllers
         private readonly IOrderBL _orderBL;
         private readonly ILogger<OrdersController> _logger;
 
+        /// <summary>
+        /// Constructor to initialize the OrdersController with dependencies.
+        /// </summary>
+        /// <param name="orderBL">Order business layer for order-related operations</param>
+        /// <param name="logger">Logger to log order-related events</param>
         public OrdersController(IOrderBL orderBL, ILogger<OrdersController> logger)
         {
             _orderBL = orderBL;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Retrieves the UserId from the claims in the current HTTP context.
+        /// </summary>
+        /// <returns>UserId</returns>
+        /// <exception cref="UnauthorizedAccessException">Thrown if the UserId claim is missing or invalid</exception>
         private int GetUserIdFromClaims()
         {
             var userIdClaim = User.FindFirst("UserId");
@@ -34,6 +47,11 @@ namespace BookStoreApp.Controllers
             throw new UnauthorizedAccessException("User not authorized.");
         }
 
+        /// <summary>
+        /// Places a new order for the user.
+        /// </summary>
+        /// <param name="orderRequests">List of order requests to be placed</param>
+        /// <returns>Result of the order placement</returns>
         [HttpPost]
         public async Task<IActionResult> AddOrder([FromBody] List<OrderRequestDto> orderRequests)
         {
@@ -55,6 +73,10 @@ namespace BookStoreApp.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves all orders for the authenticated user.
+        /// </summary>
+        /// <returns>List of orders for the authenticated user</returns>
         [HttpGet]
         public async Task<IActionResult> GetOrders()
         {

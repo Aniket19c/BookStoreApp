@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Logging;
 using RepositoryLayer.DTO;
 using RepositoryLayer.Interfaces;
 using BookStore.Models.Context;
 using Models.Entities;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +15,12 @@ namespace RepositoryLayer.Services
     public class OrderRLImpl : IOrderRL
     {
         private readonly BookStoreDbContext _context;
-        private readonly ILogger<OrderRLImpl> _logger;
         private readonly IDistributedCache _cache;
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-        public OrderRLImpl(BookStoreDbContext context, ILogger<OrderRLImpl> logger, IDistributedCache cache)
+        public OrderRLImpl(BookStoreDbContext context, IDistributedCache cache)
         {
             _context = context;
-            _logger = logger;
             _cache = cache;
         }
 
@@ -34,13 +33,13 @@ namespace RepositoryLayer.Services
                 var book = await _context.Books.FirstOrDefaultAsync(b => b.BookId == request.BookId);
                 if (book == null)
                 {
-                    _logger.LogWarning("Book not found for BookId: {BookId}", request.BookId);
+                    _logger.Warn("Book not found for BookId: {0}", request.BookId);
                     throw new InvalidOperationException("Book not found.");
                 }
 
                 if (book.Quantity < request.Quantity)
                 {
-                    _logger.LogWarning("Requested quantity exceeds available stock for BookId: {BookId}", request.BookId);
+                    _logger.Warn("Requested quantity exceeds available stock for BookId: {0}", request.BookId);
                     throw new InvalidOperationException("Insufficient stock.");
                 }
 
@@ -51,7 +50,7 @@ namespace RepositoryLayer.Services
 
                 if (string.IsNullOrWhiteSpace(address))
                 {
-                    _logger.LogWarning("Address not found for AddressId: {AddressId}", request.AddressId);
+                    _logger.Warn("Address not found for AddressId: {0}", request.AddressId);
                     throw new InvalidOperationException("Address not found.");
                 }
 
@@ -114,7 +113,7 @@ namespace RepositoryLayer.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while retrieving orders for UserId: {UserId}", userId);
+                _logger.Error(ex, "Error occurred while retrieving orders for UserId: {0}", userId);
                 throw;
             }
         }

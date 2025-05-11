@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using BookStore.Models.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Logging;
 using Models.Entities;
+using NLog;
 using RepositoryLayer.DTO;
 using RepositoryLayer.Interfaces;
 
@@ -16,12 +16,11 @@ namespace RepositoryLayer.Services
     public class CartRLImpl : ICartRL
     {
         private readonly BookStoreDbContext _context;
-        private readonly ILogger<CartRLImpl> _logger;
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-        public CartRLImpl(BookStoreDbContext context, ILogger<CartRLImpl> logger)
+        public CartRLImpl(BookStoreDbContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
         public async Task<int> AddCartAsync(CartEntity cart)
@@ -34,7 +33,7 @@ namespace RepositoryLayer.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while adding item to cart.");
+                _logger.Error(ex, "Error while adding item to cart.");
                 throw new Exception("Error while adding item to cart.");
             }
         }
@@ -59,7 +58,7 @@ namespace RepositoryLayer.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while fetching cart items.");
+                _logger.Error(ex, "Error while fetching cart items.");
                 throw new Exception("Error while fetching cart items.");
             }
         }
@@ -82,7 +81,7 @@ namespace RepositoryLayer.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while uncaring item.");
+                _logger.Error(ex, "Error while uncaring item.");
                 return false;
             }
         }
@@ -104,7 +103,7 @@ namespace RepositoryLayer.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while updating order status.");
+                _logger.Error(ex, "Error while updating order status.");
                 return false;
             }
         }
@@ -127,10 +126,9 @@ namespace RepositoryLayer.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while updating cart quantity.");
+                _logger.Error(ex, "Error while updating cart quantity.");
                 return false;
             }
         }
     }
-
 }
