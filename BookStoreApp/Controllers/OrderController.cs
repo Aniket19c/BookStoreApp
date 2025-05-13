@@ -18,28 +18,18 @@ namespace BookStoreApp.Controllers
         private readonly IOrderBL _orderBL;
         private readonly ILogger<OrdersController> _logger;
 
-        /// <summary>
-        /// Constructor to initialize the OrdersController with dependencies.
-        /// </summary>
-        /// <param name="orderBL">Order business layer for order-related operations</param>
-        /// <param name="logger">Logger to log order-related events</param>
         public OrdersController(IOrderBL orderBL, ILogger<OrdersController> logger)
         {
             _orderBL = orderBL;
             _logger = logger;
         }
 
-        /// <summary>
-        /// Retrieves the UserId from the claims in the current HTTP context.
-        /// </summary>
-        /// <returns>UserId</returns>
-        /// <exception cref="UnauthorizedAccessException">Thrown if the UserId claim is missing or invalid</exception>
         private int GetUserIdFromClaims()
         {
             var userIdClaim = User.FindFirst("UserId");
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId))
             {
-                _logger.LogInformation($"UserId {userId} successfully retrieved from claims.");
+                _logger.LogInformation("UserId {UserId} successfully retrieved from claims.", userId);
                 return userId;
             }
 
@@ -58,18 +48,18 @@ namespace BookStoreApp.Controllers
             try
             {
                 int userId = GetUserIdFromClaims();
-                var orderResponses = await _orderBL.AddOrder(orderRequests, userId);
-                return Ok(orderResponses);
+                var result = await _orderBL.AddOrder(orderRequests, userId);
+                return Ok(result);
             }
             catch (UnauthorizedAccessException ex)
             {
-                _logger.LogError(ex, "Unauthorized access.");
+                _logger.LogWarning(ex, "Unauthorized access.");
                 return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while placing the order.");
-                return StatusCode(500, $"Error occurred while placing the order: {ex.Message}");
+                return StatusCode(500, $"An error occurred while placing the order: {ex.Message}");
             }
         }
 
@@ -83,18 +73,18 @@ namespace BookStoreApp.Controllers
             try
             {
                 int userId = GetUserIdFromClaims();
-                var orders = await _orderBL.GetOrder(userId);
-                return Ok(orders);
+                var result = await _orderBL.GetOrder(userId);
+                return Ok(result);
             }
             catch (UnauthorizedAccessException ex)
             {
-                _logger.LogError(ex, "Unauthorized access.");
+                _logger.LogWarning(ex, "Unauthorized access.");
                 return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while fetching orders.");
-                return StatusCode(500, $"Error occurred while fetching orders: {ex.Message}");
+                return StatusCode(500, $"An error occurred while fetching orders: {ex.Message}");
             }
         }
     }
