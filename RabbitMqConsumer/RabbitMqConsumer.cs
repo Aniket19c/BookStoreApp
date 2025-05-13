@@ -54,8 +54,8 @@ namespace ConsumerService
                             var toEmail = data["Email"];
                             var otp = data["Otp"];
 
-                            _logger.LogInformation($"Received OTP message for {toEmail}.");
-                            SendEmail(toEmail, "BookStoreApp - OTP", $"Your OTP is: {otp}");
+                            _logger.LogInformation($"Received  message for {toEmail}.");
+                            SendEmail(toEmail, "BookStoreApp - ", $"Your token is: {otp}");
                         }
                         catch (Exception ex)
                         {
